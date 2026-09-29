@@ -28,9 +28,12 @@ from tqdm import tqdm
 from torchlight import DictAction
 
 
-import resource
-rlimit = resource.getrlimit(resource.RLIMIT_NOFILE)
-resource.setrlimit(resource.RLIMIT_NOFILE, (2048, rlimit[1]))
+try:
+    import resource
+    rlimit = resource.getrlimit(resource.RLIMIT_NOFILE)
+    resource.setrlimit(resource.RLIMIT_NOFILE, (2048, rlimit[1]))
+except ImportError:
+    pass
 
 def init_seed(seed):
     torch.cuda.manual_seed_all(seed)
@@ -210,13 +213,13 @@ class Processor():
         self.arg = arg
         self.save_arg()
         if arg.phase == 'train':
-            if not arg.train_feeder_args['debug']:
+            if not arg.train_feeder_args.get('debug', False):
                 arg.model_saved_name = os.path.join(arg.work_dir, 'runs')
                 if os.path.isdir(arg.model_saved_name):
                     print('log_dir: ', arg.model_saved_name, 'already exist')
                     answer = input('delete it? y/n:')
                     if answer == 'y':
-                        shutil.rmtree(arg.model_saved_name)
+                        shutil.rmtree(arg.model_saved_name, ignore_errors=True)
                         print('Dir removed: ', arg.model_saved_name)
                         input('Refresh the website of tensorboard by pressing any keys')
                     else:
@@ -267,7 +270,10 @@ class Processor():
             worker_init_fn=init_seed)
 
     def load_model(self):
-        output_device = self.arg.device[0] if type(self.arg.device) is list else self.arg.device
+        if type(self.arg.device) is list:
+            output_device = self.arg.device[0] if len(self.arg.device) > 0 else 0
+        else:
+            output_device = self.arg.device
         self.output_device = output_device
         Model = import_class(self.arg.model)
         shutil.copy2(inspect.getfile(Model), self.arg.work_dir)
@@ -470,6 +476,9 @@ class Processor():
             if accuracy > self.best_acc:
                 self.best_acc = accuracy
                 self.best_acc_epoch = epoch + 1
+                state_dict = self.model.state_dict()
+                weights = OrderedDict([[k.split('module.')[-1], v.cpu()] for k, v in state_dict.items()])
+                torch.save(weights, self.arg.model_saved_name + '-' + str(epoch+1) + '-' + str(int(self.global_step)) + '.pt')
 
             print('Accuracy: ', accuracy, ' model: ', self.arg.model_saved_name)
             if self.arg.phase == 'train':
@@ -492,7 +501,14 @@ class Processor():
             # acc for each class:
             label_list = np.concatenate(label_list)
             pred_list = np.concatenate(pred_list)
-            confusion = confusion_matrix(label_list, pred_list)
+            
+            # Pass `labels` to prevent UserWarning when there's only one class present
+            if 'num_class' in self.arg.model_args:
+                num_class = self.arg.model_args['num_class']
+                confusion = confusion_matrix(label_list, pred_list, labels=list(range(num_class)))
+            else:
+                confusion = confusion_matrix(label_list, pred_list)
+                
             list_diag = np.diag(confusion)
             list_raw_sum = np.sum(confusion, axis=1)
             each_acc = list_diag / list_raw_sum
@@ -560,8 +576,8 @@ if __name__ == '__main__':
     # load arg form config file
     p = parser.parse_args()
     if p.config is not None:
-        with open(p.config, 'r') as f:
-            default_arg = yaml.load(f)
+        with open(p.config, 'r', encoding='utf-8') as f:
+            default_arg = yaml.load(f, Loader=yaml.FullLoader)
         key = vars(p).keys()
         for k in default_arg.keys():
             if k not in key:

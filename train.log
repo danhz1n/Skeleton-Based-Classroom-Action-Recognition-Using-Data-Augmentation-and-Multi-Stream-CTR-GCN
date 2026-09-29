@@ -1,0 +1,536 @@
+log_dir:  work_dir/cobot/xsub/ctrgcn_joint_distance1\runs already exist
+delete it? y/n:Dir removed:  work_dir/cobot/xsub/ctrgcn_joint_distance1\runs
+Refresh the website of tensorboard by pressing any keys<class 'model.ctrgcn.Model'>
+Model(
+  (data_bn): BatchNorm1d(144, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+  (l1): TCN_GCN_unit(
+    (gcn1): unit_gcn(
+      (convs): ModuleList(
+        (0-1): 2 x CTRGC(
+          (conv1): Conv2d(3, 8, kernel_size=(1, 1), stride=(1, 1))
+          (conv2): Conv2d(3, 8, kernel_size=(1, 1), stride=(1, 1))
+          (conv3): Conv2d(3, 64, kernel_size=(1, 1), stride=(1, 1))
+          (conv4): Conv2d(8, 64, kernel_size=(1, 1), stride=(1, 1))
+          (tanh): Tanh()
+        )
+      )
+      (down): Sequential(
+        (0): Conv2d(3, 64, kernel_size=(1, 1), stride=(1, 1))
+        (1): BatchNorm2d(64, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+      )
+      (bn): BatchNorm2d(64, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+      (soft): Softmax(dim=-2)
+      (relu): ReLU(inplace=True)
+    )
+    (tcn1): MultiScale_TemporalConv(
+      (branches): ModuleList(
+        (0): Sequential(
+          (0): Conv2d(64, 16, kernel_size=(1, 1), stride=(1, 1))
+          (1): BatchNorm2d(16, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+          (2): ReLU(inplace=True)
+          (3): TemporalConv(
+            (conv): Conv2d(16, 16, kernel_size=(5, 1), stride=(1, 1), padding=(2, 0))
+            (bn): BatchNorm2d(16, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+          )
+        )
+        (1): Sequential(
+          (0): Conv2d(64, 16, kernel_size=(1, 1), stride=(1, 1))
+          (1): BatchNorm2d(16, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+          (2): ReLU(inplace=True)
+          (3): TemporalConv(
+            (conv): Conv2d(16, 16, kernel_size=(5, 1), stride=(1, 1), padding=(4, 0), dilation=(2, 1))
+            (bn): BatchNorm2d(16, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+          )
+        )
+        (2): Sequential(
+          (0): Conv2d(64, 16, kernel_size=(1, 1), stride=(1, 1))
+          (1): BatchNorm2d(16, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+          (2): ReLU(inplace=True)
+          (3): MaxPool2d(kernel_size=(3, 1), stride=(1, 1), padding=(1, 0), dilation=1, ceil_mode=False)
+          (4): BatchNorm2d(16, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+        )
+        (3): Sequential(
+          (0): Conv2d(64, 16, kernel_size=(1, 1), stride=(1, 1))
+          (1): BatchNorm2d(16, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+        )
+      )
+    )
+    (relu): ReLU(inplace=True)
+  )
+  (l2): TCN_GCN_unit(
+    (gcn1): unit_gcn(
+      (convs): ModuleList(
+        (0-1): 2 x CTRGC(
+          (conv1): Conv2d(64, 8, kernel_size=(1, 1), stride=(1, 1))
+          (conv2): Conv2d(64, 8, kernel_size=(1, 1), stride=(1, 1))
+          (conv3): Conv2d(64, 64, kernel_size=(1, 1), stride=(1, 1))
+          (conv4): Conv2d(8, 64, kernel_size=(1, 1), stride=(1, 1))
+          (tanh): Tanh()
+        )
+      )
+      (bn): BatchNorm2d(64, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+      (soft): Softmax(dim=-2)
+      (relu): ReLU(inplace=True)
+    )
+    (tcn1): MultiScale_TemporalConv(
+      (branches): ModuleList(
+        (0): Sequential(
+          (0): Conv2d(64, 16, kernel_size=(1, 1), stride=(1, 1))
+          (1): BatchNorm2d(16, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+          (2): ReLU(inplace=True)
+          (3): TemporalConv(
+            (conv): Conv2d(16, 16, kernel_size=(5, 1), stride=(1, 1), padding=(2, 0))
+            (bn): BatchNorm2d(16, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+          )
+        )
+        (1): Sequential(
+          (0): Conv2d(64, 16, kernel_size=(1, 1), stride=(1, 1))
+          (1): BatchNorm2d(16, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+          (2): ReLU(inplace=True)
+          (3): TemporalConv(
+            (conv): Conv2d(16, 16, kernel_size=(5, 1), stride=(1, 1), padding=(4, 0), dilation=(2, 1))
+            (bn): BatchNorm2d(16, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+          )
+        )
+        (2): Sequential(
+          (0): Conv2d(64, 16, kernel_size=(1, 1), stride=(1, 1))
+          (1): BatchNorm2d(16, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+          (2): ReLU(inplace=True)
+          (3): MaxPool2d(kernel_size=(3, 1), stride=(1, 1), padding=(1, 0), dilation=1, ceil_mode=False)
+          (4): BatchNorm2d(16, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+        )
+        (3): Sequential(
+          (0): Conv2d(64, 16, kernel_size=(1, 1), stride=(1, 1))
+          (1): BatchNorm2d(16, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+        )
+      )
+    )
+    (relu): ReLU(inplace=True)
+  )
+  (l3): TCN_GCN_unit(
+    (gcn1): unit_gcn(
+      (convs): ModuleList(
+        (0-1): 2 x CTRGC(
+          (conv1): Conv2d(64, 8, kernel_size=(1, 1), stride=(1, 1))
+          (conv2): Conv2d(64, 8, kernel_size=(1, 1), stride=(1, 1))
+          (conv3): Conv2d(64, 64, kernel_size=(1, 1), stride=(1, 1))
+          (conv4): Conv2d(8, 64, kernel_size=(1, 1), stride=(1, 1))
+          (tanh): Tanh()
+        )
+      )
+      (bn): BatchNorm2d(64, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+      (soft): Softmax(dim=-2)
+      (relu): ReLU(inplace=True)
+    )
+    (tcn1): MultiScale_TemporalConv(
+      (branches): ModuleList(
+        (0): Sequential(
+          (0): Conv2d(64, 16, kernel_size=(1, 1), stride=(1, 1))
+          (1): BatchNorm2d(16, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+          (2): ReLU(inplace=True)
+          (3): TemporalConv(
+            (conv): Conv2d(16, 16, kernel_size=(5, 1), stride=(1, 1), padding=(2, 0))
+            (bn): BatchNorm2d(16, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+          )
+        )
+        (1): Sequential(
+          (0): Conv2d(64, 16, kernel_size=(1, 1), stride=(1, 1))
+          (1): BatchNorm2d(16, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+          (2): ReLU(inplace=True)
+          (3): TemporalConv(
+            (conv): Conv2d(16, 16, kernel_size=(5, 1), stride=(1, 1), padding=(4, 0), dilation=(2, 1))
+            (bn): BatchNorm2d(16, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+          )
+        )
+        (2): Sequential(
+          (0): Conv2d(64, 16, kernel_size=(1, 1), stride=(1, 1))
+          (1): BatchNorm2d(16, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+          (2): ReLU(inplace=True)
+          (3): MaxPool2d(kernel_size=(3, 1), stride=(1, 1), padding=(1, 0), dilation=1, ceil_mode=False)
+          (4): BatchNorm2d(16, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+        )
+        (3): Sequential(
+          (0): Conv2d(64, 16, kernel_size=(1, 1), stride=(1, 1))
+          (1): BatchNorm2d(16, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+        )
+      )
+    )
+    (relu): ReLU(inplace=True)
+  )
+  (l4): TCN_GCN_unit(
+    (gcn1): unit_gcn(
+      (convs): ModuleList(
+        (0-1): 2 x CTRGC(
+          (conv1): Conv2d(64, 8, kernel_size=(1, 1), stride=(1, 1))
+          (conv2): Conv2d(64, 8, kernel_size=(1, 1), stride=(1, 1))
+          (conv3): Conv2d(64, 64, kernel_size=(1, 1), stride=(1, 1))
+          (conv4): Conv2d(8, 64, kernel_size=(1, 1), stride=(1, 1))
+          (tanh): Tanh()
+        )
+      )
+      (bn): BatchNorm2d(64, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+      (soft): Softmax(dim=-2)
+      (relu): ReLU(inplace=True)
+    )
+    (tcn1): MultiScale_TemporalConv(
+      (branches): ModuleList(
+        (0): Sequential(
+          (0): Conv2d(64, 16, kernel_size=(1, 1), stride=(1, 1))
+          (1): BatchNorm2d(16, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+          (2): ReLU(inplace=True)
+          (3): TemporalConv(
+            (conv): Conv2d(16, 16, kernel_size=(5, 1), stride=(1, 1), padding=(2, 0))
+            (bn): BatchNorm2d(16, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+          )
+        )
+        (1): Sequential(
+          (0): Conv2d(64, 16, kernel_size=(1, 1), stride=(1, 1))
+          (1): BatchNorm2d(16, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+          (2): ReLU(inplace=True)
+          (3): TemporalConv(
+            (conv): Conv2d(16, 16, kernel_size=(5, 1), stride=(1, 1), padding=(4, 0), dilation=(2, 1))
+            (bn): BatchNorm2d(16, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+          )
+        )
+        (2): Sequential(
+          (0): Conv2d(64, 16, kernel_size=(1, 1), stride=(1, 1))
+          (1): BatchNorm2d(16, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+          (2): ReLU(inplace=True)
+          (3): MaxPool2d(kernel_size=(3, 1), stride=(1, 1), padding=(1, 0), dilation=1, ceil_mode=False)
+          (4): BatchNorm2d(16, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+        )
+        (3): Sequential(
+          (0): Conv2d(64, 16, kernel_size=(1, 1), stride=(1, 1))
+          (1): BatchNorm2d(16, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+        )
+      )
+    )
+    (relu): ReLU(inplace=True)
+  )
+  (l5): TCN_GCN_unit(
+    (gcn1): unit_gcn(
+      (convs): ModuleList(
+        (0-1): 2 x CTRGC(
+          (conv1): Conv2d(64, 8, kernel_size=(1, 1), stride=(1, 1))
+          (conv2): Conv2d(64, 8, kernel_size=(1, 1), stride=(1, 1))
+          (conv3): Conv2d(64, 128, kernel_size=(1, 1), stride=(1, 1))
+          (conv4): Conv2d(8, 128, kernel_size=(1, 1), stride=(1, 1))
+          (tanh): Tanh()
+        )
+      )
+      (down): Sequential(
+        (0): Conv2d(64, 128, kernel_size=(1, 1), stride=(1, 1))
+        (1): BatchNorm2d(128, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+      )
+      (bn): BatchNorm2d(128, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+      (soft): Softmax(dim=-2)
+      (relu): ReLU(inplace=True)
+    )
+    (tcn1): MultiScale_TemporalConv(
+      (branches): ModuleList(
+        (0): Sequential(
+          (0): Conv2d(128, 32, kernel_size=(1, 1), stride=(1, 1))
+          (1): BatchNorm2d(32, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+          (2): ReLU(inplace=True)
+          (3): TemporalConv(
+            (conv): Conv2d(32, 32, kernel_size=(5, 1), stride=(2, 1), padding=(2, 0))
+            (bn): BatchNorm2d(32, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+          )
+        )
+        (1): Sequential(
+          (0): Conv2d(128, 32, kernel_size=(1, 1), stride=(1, 1))
+          (1): BatchNorm2d(32, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+          (2): ReLU(inplace=True)
+          (3): TemporalConv(
+            (conv): Conv2d(32, 32, kernel_size=(5, 1), stride=(2, 1), padding=(4, 0), dilation=(2, 1))
+            (bn): BatchNorm2d(32, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+          )
+        )
+        (2): Sequential(
+          (0): Conv2d(128, 32, kernel_size=(1, 1), stride=(1, 1))
+          (1): BatchNorm2d(32, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+          (2): ReLU(inplace=True)
+          (3): MaxPool2d(kernel_size=(3, 1), stride=(2, 1), padding=(1, 0), dilation=1, ceil_mode=False)
+          (4): BatchNorm2d(32, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+        )
+        (3): Sequential(
+          (0): Conv2d(128, 32, kernel_size=(1, 1), stride=(2, 1))
+          (1): BatchNorm2d(32, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+        )
+      )
+    )
+    (relu): ReLU(inplace=True)
+    (residual): unit_tcn(
+      (conv): Conv2d(64, 128, kernel_size=(1, 1), stride=(2, 1))
+      (bn): BatchNorm2d(128, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+      (relu): ReLU(inplace=True)
+    )
+  )
+  (l6): TCN_GCN_unit(
+    (gcn1): unit_gcn(
+      (convs): ModuleList(
+        (0-1): 2 x CTRGC(
+          (conv1): Conv2d(128, 16, kernel_size=(1, 1), stride=(1, 1))
+          (conv2): Conv2d(128, 16, kernel_size=(1, 1), stride=(1, 1))
+          (conv3): Conv2d(128, 128, kernel_size=(1, 1), stride=(1, 1))
+          (conv4): Conv2d(16, 128, kernel_size=(1, 1), stride=(1, 1))
+          (tanh): Tanh()
+        )
+      )
+      (bn): BatchNorm2d(128, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+      (soft): Softmax(dim=-2)
+      (relu): ReLU(inplace=True)
+    )
+    (tcn1): MultiScale_TemporalConv(
+      (branches): ModuleList(
+        (0): Sequential(
+          (0): Conv2d(128, 32, kernel_size=(1, 1), stride=(1, 1))
+          (1): BatchNorm2d(32, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+          (2): ReLU(inplace=True)
+          (3): TemporalConv(
+            (conv): Conv2d(32, 32, kernel_size=(5, 1), stride=(1, 1), padding=(2, 0))
+            (bn): BatchNorm2d(32, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+          )
+        )
+        (1): Sequential(
+          (0): Conv2d(128, 32, kernel_size=(1, 1), stride=(1, 1))
+          (1): BatchNorm2d(32, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+          (2): ReLU(inplace=True)
+          (3): TemporalConv(
+            (conv): Conv2d(32, 32, kernel_size=(5, 1), stride=(1, 1), padding=(4, 0), dilation=(2, 1))
+            (bn): BatchNorm2d(32, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+          )
+        )
+        (2): Sequential(
+          (0): Conv2d(128, 32, kernel_size=(1, 1), stride=(1, 1))
+          (1): BatchNorm2d(32, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+          (2): ReLU(inplace=True)
+          (3): MaxPool2d(kernel_size=(3, 1), stride=(1, 1), padding=(1, 0), dilation=1, ceil_mode=False)
+          (4): BatchNorm2d(32, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+        )
+        (3): Sequential(
+          (0): Conv2d(128, 32, kernel_size=(1, 1), stride=(1, 1))
+          (1): BatchNorm2d(32, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+        )
+      )
+    )
+    (relu): ReLU(inplace=True)
+  )
+  (l7): TCN_GCN_unit(
+    (gcn1): unit_gcn(
+      (convs): ModuleList(
+        (0-1): 2 x CTRGC(
+          (conv1): Conv2d(128, 16, kernel_size=(1, 1), stride=(1, 1))
+          (conv2): Conv2d(128, 16, kernel_size=(1, 1), stride=(1, 1))
+          (conv3): Conv2d(128, 128, kernel_size=(1, 1), stride=(1, 1))
+          (conv4): Conv2d(16, 128, kernel_size=(1, 1), stride=(1, 1))
+          (tanh): Tanh()
+        )
+      )
+      (bn): BatchNorm2d(128, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+      (soft): Softmax(dim=-2)
+      (relu): ReLU(inplace=True)
+    )
+    (tcn1): MultiScale_TemporalConv(
+      (branches): ModuleList(
+        (0): Sequential(
+          (0): Conv2d(128, 32, kernel_size=(1, 1), stride=(1, 1))
+          (1): BatchNorm2d(32, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+          (2): ReLU(inplace=True)
+          (3): TemporalConv(
+            (conv): Conv2d(32, 32, kernel_size=(5, 1), stride=(1, 1), padding=(2, 0))
+            (bn): BatchNorm2d(32, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+          )
+        )
+        (1): Sequential(
+          (0): Conv2d(128, 32, kernel_size=(1, 1), stride=(1, 1))
+          (1): BatchNorm2d(32, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+          (2): ReLU(inplace=True)
+          (3): TemporalConv(
+            (conv): Conv2d(32, 32, kernel_size=(5, 1), stride=(1, 1), padding=(4, 0), dilation=(2, 1))
+            (bn): BatchNorm2d(32, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+          )
+        )
+        (2): Sequential(
+          (0): Conv2d(128, 32, kernel_size=(1, 1), stride=(1, 1))
+          (1): BatchNorm2d(32, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+          (2): ReLU(inplace=True)
+          (3): MaxPool2d(kernel_size=(3, 1), stride=(1, 1), padding=(1, 0), dilation=1, ceil_mode=False)
+          (4): BatchNorm2d(32, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+        )
+        (3): Sequential(
+          (0): Conv2d(128, 32, kernel_size=(1, 1), stride=(1, 1))
+          (1): BatchNorm2d(32, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+        )
+      )
+    )
+    (relu): ReLU(inplace=True)
+  )
+  (l8): TCN_GCN_unit(
+    (gcn1): unit_gcn(
+      (convs): ModuleList(
+        (0-1): 2 x CTRGC(
+          (conv1): Conv2d(128, 16, kernel_size=(1, 1), stride=(1, 1))
+          (conv2): Conv2d(128, 16, kernel_size=(1, 1), stride=(1, 1))
+          (conv3): Conv2d(128, 256, kernel_size=(1, 1), stride=(1, 1))
+          (conv4): Conv2d(16, 256, kernel_size=(1, 1), stride=(1, 1))
+          (tanh): Tanh()
+        )
+      )
+      (down): Sequential(
+        (0): Conv2d(128, 256, kernel_size=(1, 1), stride=(1, 1))
+        (1): BatchNorm2d(256, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+      )
+      (bn): BatchNorm2d(256, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+      (soft): Softmax(dim=-2)
+      (relu): ReLU(inplace=True)
+    )
+    (tcn1): MultiScale_TemporalConv(
+      (branches): ModuleList(
+        (0): Sequential(
+          (0): Conv2d(256, 64, kernel_size=(1, 1), stride=(1, 1))
+          (1): BatchNorm2d(64, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+          (2): ReLU(inplace=True)
+          (3): TemporalConv(
+            (conv): Conv2d(64, 64, kernel_size=(5, 1), stride=(2, 1), padding=(2, 0))
+            (bn): BatchNorm2d(64, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+          )
+        )
+        (1): Sequential(
+          (0): Conv2d(256, 64, kernel_size=(1, 1), stride=(1, 1))
+          (1): BatchNorm2d(64, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+          (2): ReLU(inplace=True)
+          (3): TemporalConv(
+            (conv): Conv2d(64, 64, kernel_size=(5, 1), stride=(2, 1), padding=(4, 0), dilation=(2, 1))
+            (bn): BatchNorm2d(64, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+          )
+        )
+        (2): Sequential(
+          (0): Conv2d(256, 64, kernel_size=(1, 1), stride=(1, 1))
+          (1): BatchNorm2d(64, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+          (2): ReLU(inplace=True)
+          (3): MaxPool2d(kernel_size=(3, 1), stride=(2, 1), padding=(1, 0), dilation=1, ceil_mode=False)
+          (4): BatchNorm2d(64, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+        )
+        (3): Sequential(
+          (0): Conv2d(256, 64, kernel_size=(1, 1), stride=(2, 1))
+          (1): BatchNorm2d(64, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+        )
+      )
+    )
+    (relu): ReLU(inplace=True)
+    (residual): unit_tcn(
+      (conv): Conv2d(128, 256, kernel_size=(1, 1), stride=(2, 1))
+      (bn): BatchNorm2d(256, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+      (relu): ReLU(inplace=True)
+    )
+  )
+  (l9): TCN_GCN_unit(
+    (gcn1): unit_gcn(
+      (convs): ModuleList(
+        (0-1): 2 x CTRGC(
+          (conv1): Conv2d(256, 32, kernel_size=(1, 1), stride=(1, 1))
+          (conv2): Conv2d(256, 32, kernel_size=(1, 1), stride=(1, 1))
+          (conv3): Conv2d(256, 256, kernel_size=(1, 1), stride=(1, 1))
+          (conv4): Conv2d(32, 256, kernel_size=(1, 1), stride=(1, 1))
+          (tanh): Tanh()
+        )
+      )
+      (bn): BatchNorm2d(256, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+      (soft): Softmax(dim=-2)
+      (relu): ReLU(inplace=True)
+    )
+    (tcn1): MultiScale_TemporalConv(
+      (branches): ModuleList(
+        (0): Sequential(
+          (0): Conv2d(256, 64, kernel_size=(1, 1), stride=(1, 1))
+          (1): BatchNorm2d(64, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+          (2): ReLU(inplace=True)
+          (3): TemporalConv(
+            (conv): Conv2d(64, 64, kernel_size=(5, 1), stride=(1, 1), padding=(2, 0))
+            (bn): BatchNorm2d(64, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+          )
+        )
+        (1): Sequential(
+          (0): Conv2d(256, 64, kernel_size=(1, 1), stride=(1, 1))
+          (1): BatchNorm2d(64, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+          (2): ReLU(inplace=True)
+          (3): TemporalConv(
+            (conv): Conv2d(64, 64, kernel_size=(5, 1), stride=(1, 1), padding=(4, 0), dilation=(2, 1))
+            (bn): BatchNorm2d(64, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+          )
+        )
+        (2): Sequential(
+          (0): Conv2d(256, 64, kernel_size=(1, 1), stride=(1, 1))
+          (1): BatchNorm2d(64, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+          (2): ReLU(inplace=True)
+          (3): MaxPool2d(kernel_size=(3, 1), stride=(1, 1), padding=(1, 0), dilation=1, ceil_mode=False)
+          (4): BatchNorm2d(64, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+        )
+        (3): Sequential(
+          (0): Conv2d(256, 64, kernel_size=(1, 1), stride=(1, 1))
+          (1): BatchNorm2d(64, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+        )
+      )
+    )
+    (relu): ReLU(inplace=True)
+  )
+  (l10): TCN_GCN_unit(
+    (gcn1): unit_gcn(
+      (convs): ModuleList(
+        (0-1): 2 x CTRGC(
+          (conv1): Conv2d(256, 32, kernel_size=(1, 1), stride=(1, 1))
+          (conv2): Conv2d(256, 32, kernel_size=(1, 1), stride=(1, 1))
+          (conv3): Conv2d(256, 256, kernel_size=(1, 1), stride=(1, 1))
+          (conv4): Conv2d(32, 256, kernel_size=(1, 1), stride=(1, 1))
+          (tanh): Tanh()
+        )
+      )
+      (bn): BatchNorm2d(256, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+      (soft): Softmax(dim=-2)
+      (relu): ReLU(inplace=True)
+    )
+    (tcn1): MultiScale_TemporalConv(
+      (branches): ModuleList(
+        (0): Sequential(
+          (0): Conv2d(256, 64, kernel_size=(1, 1), stride=(1, 1))
+          (1): BatchNorm2d(64, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+          (2): ReLU(inplace=True)
+          (3): TemporalConv(
+            (conv): Conv2d(64, 64, kernel_size=(5, 1), stride=(1, 1), padding=(2, 0))
+            (bn): BatchNorm2d(64, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+          )
+        )
+        (1): Sequential(
+          (0): Conv2d(256, 64, kernel_size=(1, 1), stride=(1, 1))
+          (1): BatchNorm2d(64, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+          (2): ReLU(inplace=True)
+          (3): TemporalConv(
+            (conv): Conv2d(64, 64, kernel_size=(5, 1), stride=(1, 1), padding=(4, 0), dilation=(2, 1))
+            (bn): BatchNorm2d(64, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+          )
+        )
+        (2): Sequential(
+          (0): Conv2d(256, 64, kernel_size=(1, 1), stride=(1, 1))
+          (1): BatchNorm2d(64, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+          (2): ReLU(inplace=True)
+          (3): MaxPool2d(kernel_size=(3, 1), stride=(1, 1), padding=(1, 0), dilation=1, ceil_mode=False)
+          (4): BatchNorm2d(64, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+        )
+        (3): Sequential(
+          (0): Conv2d(256, 64, kernel_size=(1, 1), stride=(1, 1))
+          (1): BatchNorm2d(64, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+        )
+      )
+    )
+    (relu): ReLU(inplace=True)
+  )
+  (fc): Linear(in_features=256, out_features=19, bias=True)
+  (drop_out): Dropout(p=0.3, inplace=False)
+)
+[ Tue Jun  9 10:33:46 2026 ] using warm up, epoch: 5
+[ Tue Jun  9 10:33:48 2026 ] Parameters:
+{'work_dir': 'work_dir/cobot/xsub/ctrgcn_joint_distance1', 'model_saved_name': 'work_dir/cobot/xsub/ctrgcn_joint_distance1\\runs', 'config': 'config/Cobot/config.yaml', 'phase': 'train', 'save_score': False, 'seed': 1, 'log_interval': 100, 'save_interval': 1, 'save_epoch': 30, 'eval_interval': 5, 'print_log': True, 'show_topk': [1, 5], 'feeder': 'feeders.feeder_ntu.Feeder', 'num_worker': 0, 'train_feeder_args': {'data_path': 'data\\data_cobot_clr_new\\data_cobot_clr_new\\xsub\\train_position.npy', 'label_path': 'data\\data_cobot_clr_new\\data_cobot_clr_new\\xsub\\train_label.pkl', 'p_interval': [0.5, 1], 'window_size': 64}, 'test_feeder_args': {'data_path': 'data\\data_cobot_clr_new\\data_cobot_clr_new\\xsub\\val_position.npy', 'label_path': 'data\\data_cobot_clr_new\\data_cobot_clr_new\\xsub\\val_label.pkl', 'p_interval': [0.95], 'window_size': 64}, 'model': 'model.ctrgcn.Model', 'model_args': {'num_class': 19, 'num_point': 48, 'num_person': 1, 'graph': 'graph.cobot.Graph', 'graph_args': {'labeling_mode': 'distance'}, 'label_smoothing': 0.1, 'drop_out': 0.3}, 'weights': None, 'ignore_weights': [], 'base_lr': 0.01, 'step': [30, 70], 'device': [0], 'optimizer': 'SGD', 'nesterov': True, 'batch_size': 16, 'test_batch_size': 16, 'start_epoch': 0, 'num_epoch': 150, 'weight_decay': 0.0001, 'lr_decay_rate': 0.1, 'warm_up_epoch': 5}
+
+[ Tue Jun  9 10:33:48 2026 ] # Parameters: 1166205
+[ Tue Jun  9 10:33:48 2026 ] Training epoch: 1

@@ -1,0 +1,94 @@
+2026-06-27 16:30:12,106 - ==================================================
+2026-06-27 16:30:12,107 - BẮT ĐẦU CHẠY SHAP XAI CHO MÔ HÌNH ENSEMBLE 4 LUỒNG
+2026-06-27 16:30:12,108 - ==================================================
+2026-06-27 16:30:12,569 - Đang nạp trọng số mạng Joint...
+2026-06-27 16:30:12,755 - Đang nạp trọng số mạng Bone...
+2026-06-27 16:30:12,919 - Đang nạp trọng số mạng Joint Motion...
+2026-06-27 16:30:13,105 - Đang nạp trọng số mạng Bone Motion...
+2026-06-27 16:30:13,271 - Nạp trọng số thành công cho cả 4 mạng!
+2026-06-27 16:30:13,770 - Đang nạp dữ liệu mẫu từ tập Test...
+2026-06-27 16:30:13,814 - Dữ liệu mẫu nạp thành công. Kích thước (N, C, T, V, M): torch.Size([1, 2, 50, 17, 1])
+2026-06-27 16:30:13,814 - Nhãn thực tế (Ground Truth) của mẫu này: 0
+2026-06-27 16:30:13,815 - Đang khởi tạo SHAP GradientExplainer (Sẽ tốn một chút thời gian để tính toán đạo hàm)...
+2026-06-27 16:30:14,795 - Đang tính toán SHAP values xuyên qua 4 mạng (Backpropagation)...
+2026-06-27 16:35:58,987 - Tính toán SHAP thành công!
+2026-06-27 16:35:58,993 - 
+--- KẾT QUẢ ĐỘ QUAN TRỌNG TỪNG KHỚP (SHAP VALUES) ---
+2026-06-27 16:35:58,994 - LỖI KHI CHẠY SHAP: unsupported format string passed to numpy.ndarray.__format__
+2026-06-27 16:35:58,994 - Do đặc thù mô hình CTR-GCN dùng quá nhiều phép tính đồ thị phức tạp, thư viện SHAP có thể không hỗ trợ hoàn toàn.
+2026-06-27 16:43:24,433 - ==================================================
+2026-06-27 16:43:24,433 - BẮT ĐẦU CHẠY SHAP XAI CHO MÔ HÌNH ENSEMBLE 4 LUỒNG
+2026-06-27 16:43:24,433 - ==================================================
+2026-06-27 16:43:24,827 - Đang nạp trọng số mạng Joint...
+2026-06-27 16:43:25,014 - Đang nạp trọng số mạng Bone...
+2026-06-27 16:43:25,179 - Đang nạp trọng số mạng Joint Motion...
+2026-06-27 16:43:25,371 - Đang nạp trọng số mạng Bone Motion...
+2026-06-27 16:43:25,535 - Nạp trọng số thành công cho cả 4 mạng!
+2026-06-27 16:43:25,932 - Đang nạp dữ liệu mẫu từ tập Test...
+2026-06-27 16:43:25,966 - Dữ liệu mẫu nạp thành công. Kích thước (N, C, T, V, M): torch.Size([1, 2, 50, 17, 1])
+2026-06-27 16:43:25,967 - Nhãn thực tế (Ground Truth) của mẫu này: 0
+2026-06-27 16:43:25,967 - Đang khởi tạo SHAP GradientExplainer (Sẽ tốn một chút thời gian để tính toán đạo hàm)...
+2026-06-27 16:43:26,751 - Đang tính toán SHAP values xuyên qua 4 mạng (Backpropagation)...
+2026-06-27 16:49:06,545 - Shape của target_shap: (1, 2, 50, 17, 1, 7)
+2026-06-27 16:49:06,545 - Tính toán SHAP thành công!
+2026-06-27 16:49:06,546 - 
+--- KẾT QUẢ ĐỘ QUAN TRỌNG TỪNG KHỚP (SHAP VALUES) ---
+2026-06-27 16:49:06,546 - Khớp 00: Điểm SHAP = 0.000000
+2026-06-27 16:49:06,546 - Khớp 01: Điểm SHAP = 165.066890
+2026-06-27 16:49:06,547 - Khớp 02: Điểm SHAP = 171.280246
+2026-06-27 16:49:06,547 - Khớp 03: Điểm SHAP = 89.793223
+2026-06-27 16:49:06,547 - Khớp 04: Điểm SHAP = 157.909770
+2026-06-27 16:49:06,547 - Khớp 05: Điểm SHAP = 107.525592
+2026-06-27 16:49:06,548 - Khớp 06: Điểm SHAP = 193.728693
+2026-06-27 16:49:06,548 - Khớp 07: Điểm SHAP = 274.344108
+2026-06-27 16:49:06,548 - Khớp 08: Điểm SHAP = 343.363838
+2026-06-27 16:49:06,548 - Khớp 09: Điểm SHAP = 183.404702
+2026-06-27 16:49:06,549 - Khớp 10: Điểm SHAP = 170.662054
+2026-06-27 16:49:06,549 - Khớp 11: Điểm SHAP = 92.140412
+2026-06-27 16:49:06,549 - Khớp 12: Điểm SHAP = 132.203653
+2026-06-27 16:49:06,549 - Khớp 13: Điểm SHAP = 142.485620
+2026-06-27 16:49:06,550 - Khớp 14: Điểm SHAP = 173.058317
+2026-06-27 16:49:06,550 - Khớp 15: Điểm SHAP = 38.347599
+2026-06-27 16:49:06,550 - Khớp 16: Điểm SHAP = 83.496069
+2026-06-27 16:49:06,551 - => Khớp quan trọng nhất trong hành động này là: Khớp số 8
+2026-06-27 16:49:09,225 - Đã lưu biểu đồ Heatmap khung xương ra file: shap_heatmap.png
+2026-06-27 16:49:09,254 - Quá trình chạy XAI hoàn tất tốt đẹp!
+2026-06-27 23:26:08,365 - ==================================================
+2026-06-27 23:26:08,366 - BẮT ĐẦU CHẠY SHAP XAI CHO MÔ HÌNH ENSEMBLE 4 LUỒNG
+2026-06-27 23:26:08,366 - ==================================================
+2026-06-27 23:26:08,979 - Đang nạp trọng số mạng Joint...
+2026-06-27 23:26:09,288 - Đang nạp trọng số mạng Bone...
+2026-06-27 23:26:09,473 - Đang nạp trọng số mạng Joint Motion...
+2026-06-27 23:26:09,667 - Đang nạp trọng số mạng Bone Motion...
+2026-06-27 23:26:09,826 - Nạp trọng số thành công cho cả 4 mạng!
+2026-06-27 23:26:10,219 - Đang quét tập Test để tự động tìm một video bị phân loại sai (Outlier)...
+2026-06-27 23:26:15,683 - BINGO! Đã tìm thấy Case đoán sai tại video số: 10
+2026-06-27 23:26:15,683 - -> Nhãn thực tế (Ground Truth): Class 0
+2026-06-27 23:26:15,683 - -> AI lại đoán nhầm thành   : Class 3
+2026-06-27 23:26:15,698 - Đã chốt phân tích video số 10. Kích thước (N, C, T, V, M): torch.Size([1, 2, 50, 17, 1])
+2026-06-27 23:26:15,700 - Đang khởi tạo SHAP GradientExplainer (Sẽ tốn một chút thời gian để tính toán đạo hàm)...
+2026-06-27 23:26:16,255 - Đang tính toán SHAP values xuyên qua 4 mạng (Backpropagation)...
+2026-06-27 23:31:55,383 - Shape của target_shap: (1, 2, 50, 17, 1, 7)
+2026-06-27 23:31:55,384 - Tính toán SHAP thành công!
+2026-06-27 23:31:55,384 - 
+--- KẾT QUẢ ĐỘ QUAN TRỌNG TỪNG KHỚP (SHAP VALUES) ---
+2026-06-27 23:31:55,384 - Khớp 00: Điểm SHAP = 0.000000
+2026-06-27 23:31:55,385 - Khớp 01: Điểm SHAP = 219.673951
+2026-06-27 23:31:55,385 - Khớp 02: Điểm SHAP = 137.888047
+2026-06-27 23:31:55,385 - Khớp 03: Điểm SHAP = 131.033306
+2026-06-27 23:31:55,385 - Khớp 04: Điểm SHAP = 106.136474
+2026-06-27 23:31:55,386 - Khớp 05: Điểm SHAP = 132.277889
+2026-06-27 23:31:55,386 - Khớp 06: Điểm SHAP = 87.537602
+2026-06-27 23:31:55,386 - Khớp 07: Điểm SHAP = 115.573111
+2026-06-27 23:31:55,387 - Khớp 08: Điểm SHAP = 227.928496
+2026-06-27 23:31:55,387 - Khớp 09: Điểm SHAP = 125.356168
+2026-06-27 23:31:55,387 - Khớp 10: Điểm SHAP = 213.616785
+2026-06-27 23:31:55,388 - Khớp 11: Điểm SHAP = 74.727765
+2026-06-27 23:31:55,388 - Khớp 12: Điểm SHAP = 106.256378
+2026-06-27 23:31:55,388 - Khớp 13: Điểm SHAP = 89.494492
+2026-06-27 23:31:55,388 - Khớp 14: Điểm SHAP = 160.170451
+2026-06-27 23:31:55,389 - Khớp 15: Điểm SHAP = 56.011614
+2026-06-27 23:31:55,389 - Khớp 16: Điểm SHAP = 143.480076
+2026-06-27 23:31:55,391 - => Khớp quan trọng nhất trong hành động này là: Khớp số 8
+2026-06-27 23:31:56,017 - Đã lưu biểu đồ Heatmap khung xương ra file: shap_heatmap.png
+2026-06-27 23:31:56,054 - Quá trình chạy XAI hoàn tất tốt đẹp!

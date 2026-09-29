@@ -1,0 +1,63 @@
+# config/DAV/config.yaml
+
+# Thư mục lưu checkpoint weights và log khi train
+work_dir: ./work_dir/dav/ctrgcn_bonemotion/ 
+
+# ==============================================================================
+# 1. ĐỊNH NGHĨA CẤU TRÚC MÔ HÌNH (MODEL ARCHITECTURE)
+# ==============================================================================
+model: model.ctrgcn.Model  # Để là .Model (class chuẩn trong code gốc), nếu file ctrgcn.py của bạn sửa tên class thành CTRGCN_Model thì mới đổi lại nhé
+model_args:
+  num_class: 7        # Số class nhận diện (7 class hành động) - CHỈ ĐẶT Ở ĐÂY
+  num_point: 17       # Số lượng nốt xương (V) 
+  num_person: 1       # Số người tối đa trong một khung hình (M)
+  in_channels: 2
+  graph: graph.dav.Graph # Giữ nguyên file đồ thị có sẵn của bạn
+  graph_args:
+    labeling_mode: 'spatial'  # Cách phân nhãn cạnh trong đồ thị, giữ nguyên nếu bạn không thay đổi cấu trúc đồ thị
+  drop_out: 0.6               # Tăng Dropout lên 0.6 để giảm thiểu Overfitting ở giai đoạn cuối
+
+# ==============================================================================
+# 2. CẤU HÌNH BỘ NẠP DỮ LIỆU (FEEDER)
+# ==============================================================================
+feeder: feeders.feeder_dav.Feeder
+num_worker: 4
+
+train_feeder_args:
+  data_path: ./data/dav/train_data.pkl    
+  label_path: ./data/dav/train_label.pkl  
+  random_choose: True
+  random_move: True
+  bone: True
+  vel: True
+  early_fusion: False
+  window_size: 50                        
+
+test_feeder_args:
+  data_path: ./data/dav/test_data.pkl    
+  label_path: ./data/dav/test_label.pkl
+  bone: True
+  vel: True
+  early_fusion: False
+  window_size: 50
+
+# ==============================================================================
+# 3. CHIẾN LƯỢC TỐI ƯU VÀ SIÊU THAM SỐ (HYPERPARAMETERS)
+# ==============================================================================
+weight_decay: 0.0008      # Tăng weight_decay để phạt nặng hơn, chống học vẹt (Overfitting)
+base_lr: 0.025        # Điều chỉnh chuẩn theo công thức cho batch_size 16 (0.1 * 16 / 64)
+lr_decay_rate: 0.1
+step: [60, 90, 110]   # Thêm mốc 110 để hạ nhiệt độ học, giúp model ổn định không bị rớt Acc
+warm_up_epoch: 5
+
+# Điều khiển quá trình chạy
+# Tối ưu: Dùng window_size 50 giúp tiết kiệm VRAM, nên đẩy batch_size lên 16.
+batch_size: 16      
+test_batch_size: 16
+num_epoch: 120        
+nesterov: True
+
+# Cấu hình phần cứng
+device: [0]           # Chạy trên GPU số 0
+save_interval: 5      # Cứ 5 epoch lưu weight một lần
+eval_interval: 1      # Cứ 1 epoch đánh giá độ chính xác một lần

@@ -152,7 +152,7 @@ class CTRGC(nn.Module):
         super(CTRGC, self).__init__()
         self.in_channels = in_channels
         self.out_channels = out_channels
-        if in_channels == 3 or in_channels == 9:
+        if in_channels == 3 or in_channels == 9 or in_channels == 2 or in_channels == 6:
             self.rel_channels = 8
             self.mid_channels = 16
         else:
@@ -250,7 +250,7 @@ class unit_gcn(nn.Module):
 
 
 class TCN_GCN_unit(nn.Module):
-    def __init__(self, in_channels, out_channels, A, stride=1, residual=True, adaptive=True, kernel_size=5, dilations=[1,2]):
+    def __init__(self, in_channels, out_channels, A, stride=1, residual=True, adaptive=True, kernel_size=5, dilations=[1,2], drop_out=0):
         super(TCN_GCN_unit, self).__init__()
         self.gcn1 = unit_gcn(in_channels, out_channels, A, adaptive=adaptive)
         self.tcn1 = MultiScale_TemporalConv(out_channels, out_channels, kernel_size=kernel_size, stride=stride, dilations=dilations,
@@ -265,14 +265,15 @@ class TCN_GCN_unit(nn.Module):
         else:
             self.residual = unit_tcn(in_channels, out_channels, kernel_size=1, stride=stride)
 
+        self.drop_out = nn.Dropout(drop_out) if drop_out else lambda x: x
+
     def forward(self, x):
         y = self.relu(self.tcn1(self.gcn1(x)) + self.residual(x))
-        return y
+        return self.drop_out(y)
 
 
 class Model(nn.Module):
-    def __init__(self, num_class=60, num_point=25, num_person=2, graph=None, graph_args=dict(), in_channels=3,
-                 drop_out=0, adaptive=True):
+    def __init__(self, num_class=60, num_point=48, num_person=2, graph=None, graph_args=dict(), in_channels=3, drop_out=0, label_smoothing=0.0):
         super(Model, self).__init__()
 
         if graph is None:
@@ -280,42 +281,63 @@ class Model(nn.Module):
         else:
             Graph = import_class(graph)
             self.graph = Graph(**graph_args)
-
-        A = self.graph.A # 3,25,25
+        A = self.graph.A
 
         self.num_class = num_class
-        self.num_point = num_point
-        self.data_bn = nn.BatchNorm1d(num_person * in_channels * num_point)
+        self.num_point = num_point  
+        self.data_bn = nn.BatchNorm1d(num_point * in_channels * num_person)
 
-        base_channel = 64
-        self.l1 = TCN_GCN_unit(in_channels, base_channel, A, residual=False, adaptive=adaptive)
-        self.l2 = TCN_GCN_unit(base_channel, base_channel, A, adaptive=adaptive)
-        self.l3 = TCN_GCN_unit(base_channel, base_channel, A, adaptive=adaptive)
-        self.l4 = TCN_GCN_unit(base_channel, base_channel, A, adaptive=adaptive)
-        self.l5 = TCN_GCN_unit(base_channel, base_channel*2, A, stride=2, adaptive=adaptive)
-        self.l6 = TCN_GCN_unit(base_channel*2, base_channel*2, A, adaptive=adaptive)
-        self.l7 = TCN_GCN_unit(base_channel*2, base_channel*2, A, adaptive=adaptive)
-        self.l8 = TCN_GCN_unit(base_channel*2, base_channel*4, A, stride=2, adaptive=adaptive)
-        self.l9 = TCN_GCN_unit(base_channel*4, base_channel*4, A, adaptive=adaptive)
-        self.l10 = TCN_GCN_unit(base_channel*4, base_channel*4, A, adaptive=adaptive)
+        # Giữ nguyên phần khởi tạo l1 đến l10 phía dưới...
+        self.l1 = TCN_GCN_unit(in_channels, 64, A, residual=False)
+        self.l2 = TCN_GCN_unit(64, 64, A)
+        self.l3 = TCN_GCN_unit(64, 64, A)
+        self.l4 = TCN_GCN_unit(64, 64, A)
+        self.l5 = TCN_GCN_unit(64, 128, A, stride=2)
+        self.l6 = TCN_GCN_unit(128, 128, A)
+        self.l7 = TCN_GCN_unit(128, 128, A)
+        self.l8 = TCN_GCN_unit(128, 256, A, stride=2)
+        self.l9 = TCN_GCN_unit(256, 256, A)
+        self.l10 = TCN_GCN_unit(256, 256, A)
 
-        self.fc = nn.Linear(base_channel*4, num_class)
-        nn.init.normal_(self.fc.weight, 0, math.sqrt(2. / num_class))
-        bn_init(self.data_bn, 1)
-        if drop_out:
-            self.drop_out = nn.Dropout(drop_out)
-        else:
-            self.drop_out = lambda x: x
+        self.fc = nn.Linear(256, num_class)
+        self.drop_out = nn.Dropout(drop_out) if drop_out > 0 else lambda x: x
+        self.label_smoothing = label_smoothing
 
     def forward(self, x):
-        if len(x.shape) == 3:
+        # 1. ĐỒNG BỘ HÓA SỐ CHIỀU (Nếu Feeder trả về 4 chiều [N, V, T, C])
+        if len(x.shape) == 4:
+            # Hiện tại x đang có dạng: [16, 60, 64, 3] tương ứng [N, V, T, C]
+            # Ta cần đưa nó về dạng chuẩn 5 chiều: [N, C, T, V, M] (với M=1)
+            x = x.permute(0, 3, 2, 1).contiguous().unsqueeze(-1)
+
+        # Nếu dữ liệu đầu vào 3 chiều (bản gọn)
+        elif len(x.shape) == 3:
             N, T, VC = x.shape
             x = x.view(N, T, self.num_point, -1).permute(0, 3, 1, 2).contiguous().unsqueeze(-1)
+        
+        # Lúc này x chắc chắn đã đạt shape chuẩn 5 chiều: N, C, T, V, M
         N, C, T, V, M = x.size()
 
-        x = x.permute(0, 4, 3, 1, 2).contiguous().view(N, M * V * C, T)
+        # 2. ÉP CẮT KHỚP THỪA (Nếu file npy thô vẫn chứa 60 khớp thay vì 48)
+        if V != self.num_point:
+            x = x[:, :, :, :self.num_point, :]
+            V = self.num_point  # Cập nhật lại biến V thành 48 khớp Cobot
+
+        # 3. GỘP TRỤC VÀ CHUẨN HÓA ĐẦU VÀO
+        total_features = M * V * C  # Lúc này chắc chắn là 1 * 48 * 3 = 144
+        x = x.permute(0, 4, 3, 1, 2).contiguous().view(N, total_features, T)
+        
+        if self.data_bn.num_features != total_features:
+            import torch.nn as nn
+            self.data_bn = nn.BatchNorm1d(total_features).to(x.device)
+            
         x = self.data_bn(x)
+        
+        # 4. RÃ TRỤC NGHỊCH ĐẢO CHUẨN HÌNH HỌC KHÔNG GIAN
+        # Chuyển đổi chính xác tensor về định dạng đầu vào cho l1: [N*M, C, T, V]
         x = x.view(N, M, V, C, T).permute(0, 1, 3, 4, 2).contiguous().view(N * M, C, T, V)
+
+        # Luồng dữ liệu đi qua 10 khối Spatio-Temporal Unit (Sẽ không bao giờ bị nghẽn mạch nữa)
         x = self.l1(x)
         x = self.l2(x)
         x = self.l3(x)
@@ -327,7 +349,7 @@ class Model(nn.Module):
         x = self.l9(x)
         x = self.l10(x)
 
-        # N*M,C,T,V
+        # Hạ tầng tuyến tính phân loại đầu ra
         c_new = x.size(1)
         x = x.view(N, M, c_new, -1)
         x = x.mean(3).mean(1)

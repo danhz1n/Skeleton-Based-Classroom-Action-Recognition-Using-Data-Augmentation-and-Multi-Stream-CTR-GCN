@@ -9,7 +9,7 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument('--dataset',
                         required=True,
-                        choices={'ntu/xsub', 'ntu/xview', 'ntu120/xsub', 'ntu120/xset', 'NW-UCLA'},
+                        choices={'ntu/xsub', 'ntu/xview', 'ntu120/xsub', 'ntu120/xset', 'NW-UCLA', 'dav', 'cobot'},
                         help='the work folder for storing results')
     parser.add_argument('--alpha',
                         default=1,
@@ -47,68 +47,73 @@ if __name__ == "__main__":
         elif 'xview' in arg.dataset:
             npz_data = np.load('./data/' + 'ntu/' + 'NTU60_CV.npz')
             label = np.where(npz_data['y_test'] > 0)[1]
+    elif 'dav' in arg.dataset.lower():
+        with open('./data/dav/test_label.pkl', 'rb') as f:
+            label = pickle.load(f)
+    elif 'cobot' in arg.dataset.lower():
+        with open('./data/data_cobot_clr_new/data_cobot_clr_new/xsub/val_label.pkl', 'rb') as f:
+            _, label = pickle.load(f)
+            label = list(label)
     else:
         raise NotImplementedError
 
-    with open(os.path.join(arg.joint_dir, 'epoch1_test_score.pkl'), 'rb') as r1:
-        r1 = list(pickle.load(r1).items())
-
-    with open(os.path.join(arg.bone_dir, 'epoch1_test_score.pkl'), 'rb') as r2:
-        r2 = list(pickle.load(r2).items())
-
+    arg.alpha = [0.6, 0.6, 0.4, 0.4]
+    rates = []
+    results = []
+    
+    if arg.joint_dir is not None:
+        with open(os.path.join(arg.joint_dir, 'epoch1_test_score.pkl'), 'rb') as f:
+            results.append(list(pickle.load(f).items()))
+        rates.append(arg.alpha[0])
+        
+    if arg.bone_dir is not None:
+        with open(os.path.join(arg.bone_dir, 'epoch1_test_score.pkl'), 'rb') as f:
+            results.append(list(pickle.load(f).items()))
+        rates.append(arg.alpha[1])
+        
     if arg.joint_motion_dir is not None:
-        with open(os.path.join(arg.joint_motion_dir, 'epoch1_test_score.pkl'), 'rb') as r3:
-            r3 = list(pickle.load(r3).items())
+        with open(os.path.join(arg.joint_motion_dir, 'epoch1_test_score.pkl'), 'rb') as f:
+            results.append(list(pickle.load(f).items()))
+        rates.append(arg.alpha[2])
+        
     if arg.bone_motion_dir is not None:
-        with open(os.path.join(arg.bone_motion_dir, 'epoch1_test_score.pkl'), 'rb') as r4:
-            r4 = list(pickle.load(r4).items())
+        with open(os.path.join(arg.bone_motion_dir, 'epoch1_test_score.pkl'), 'rb') as f:
+            results.append(list(pickle.load(f).items()))
+        rates.append(arg.alpha[3])
+
+    if len(results) == 0:
+        print("Vui lòng cung cấp ít nhất 1 thư mục kết quả (VD: --joint-dir, --bone-dir...)")
+        exit()
 
     right_num = total_num = right_num_5 = 0
+    max_len = min([len(label)] + [len(r) for r in results])
+    
+    for i in tqdm(range(max_len)):
+        l = label[i]
+        
+        # Gộp điểm của tất cả các luồng được cung cấp
+        r = np.zeros_like(results[0][i][1])
+        for idx, res in enumerate(results):
+            _, scores = res[i]
+            r += scores * rates[idx]
+            
+        rank_5 = r.argsort()[-5:]
+        right_num_5 += int(int(l) in rank_5)
+        r = np.argmax(r)
+        right_num += int(r == int(l))
+        total_num += 1
 
-    if arg.joint_motion_dir is not None and arg.bone_motion_dir is not None:
-        arg.alpha = [0.6, 0.6, 0.4, 0.4]
-        for i in tqdm(range(len(label))):
-            l = label[i]
-            _, r11 = r1[i]
-            _, r22 = r2[i]
-            _, r33 = r3[i]
-            _, r44 = r4[i]
-            r = r11 * arg.alpha[0] + r22 * arg.alpha[1] + r33 * arg.alpha[2] + r44 * arg.alpha[3]
-            rank_5 = r.argsort()[-5:]
-            right_num_5 += int(int(l) in rank_5)
-            r = np.argmax(r)
-            right_num += int(r == int(l))
-            total_num += 1
-        acc = right_num / total_num
-        acc5 = right_num_5 / total_num
-    elif arg.joint_motion_dir is not None and arg.bone_motion_dir is None:
-        arg.alpha = [0.6, 0.6, 0.4]
-        for i in tqdm(range(len(label))):
-            l = label[:, i]
-            _, r11 = r1[i]
-            _, r22 = r2[i]
-            _, r33 = r3[i]
-            r = r11 * arg.alpha[0] + r22 * arg.alpha[1] + r33 * arg.alpha[2]
-            rank_5 = r.argsort()[-5:]
-            right_num_5 += int(int(l) in rank_5)
-            r = np.argmax(r)
-            right_num += int(r == int(l))
-            total_num += 1
-        acc = right_num / total_num
-        acc5 = right_num_5 / total_num
-    else:
-        for i in tqdm(range(len(label))):
-            l = label[i]
-            _, r11 = r1[i]
-            _, r22 = r2[i]
-            r = r11 + r22 * arg.alpha
-            rank_5 = r.argsort()[-5:]
-            right_num_5 += int(int(l) in rank_5)
-            r = np.argmax(r)
-            right_num += int(r == int(l))
-            total_num += 1
-        acc = right_num / total_num
-        acc5 = right_num_5 / total_num
+    acc = right_num / total_num
+    acc5 = right_num_5 / total_num
 
     print('Top1 Acc: {:.4f}%'.format(acc * 100))
     print('Top5 Acc: {:.4f}%'.format(acc5 * 100))
+    
+    # Ghi log kết quả
+    import datetime
+    with open('ensemble_log.txt', 'a', encoding='utf-8') as f:
+        f.write(f"[{datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')}] Dataset: {arg.dataset} (ensemble.py)\n")
+        f.write(f"Alpha: {arg.alpha}\n")
+        f.write(f"Top1 Acc: {acc * 100:.4f}%\n")
+        f.write(f"Top5 Acc: {acc5 * 100:.4f}%\n")
+        f.write("-" * 50 + "\n")

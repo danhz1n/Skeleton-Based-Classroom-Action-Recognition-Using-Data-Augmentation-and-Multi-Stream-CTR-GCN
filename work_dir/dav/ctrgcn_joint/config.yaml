@@ -1,0 +1,62 @@
+# command line: main.py --config config/DAV/configjoint.yaml
+
+base_lr: 0.025
+batch_size: 16
+config: config/DAV/configjoint.yaml
+device:
+- 0
+eval_interval: 1
+feeder: feeders.feeder_dav.Feeder
+ignore_weights: []
+log_interval: 100
+lr_decay_rate: 0.1
+model: model.ctrgcn.Model
+model_args:
+  drop_out: 0.6
+  graph: graph.dav.Graph
+  graph_args:
+    labeling_mode: spatial
+  in_channels: 2
+  num_class: 7
+  num_person: 1
+  num_point: 17
+model_saved_name: ''
+nesterov: true
+num_epoch: 120
+num_worker: 4
+optimizer: SGD
+phase: train
+print_log: true
+save_epoch: 30
+save_interval: 5
+save_score: false
+seed: 1
+show_topk:
+- 1
+- 5
+start_epoch: 0
+step:
+- 60
+- 90
+- 110
+test_batch_size: 16
+test_feeder_args:
+  bone: false
+  data_path: ./data/dav/test_data.pkl
+  early_fusion: false
+  label_path: ./data/dav/test_label.pkl
+  vel: false
+  window_size: 50
+train_feeder_args:
+  bone: false
+  data_path: ./data/dav/train_data.pkl
+  early_fusion: false
+  label_path: ./data/dav/train_label.pkl
+  random_choose: true
+  random_move: true
+  vel: false
+  window_size: 50
+warm_up_epoch: 5
+weight_decay: 0.0008
+weights: null
+work_dir: ./work_dir/dav/ctrgcn_joint/

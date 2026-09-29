@@ -1,4 +1,5 @@
 import numpy as np
+import pickle
 
 from torch.utils.data import Dataset
 
@@ -10,22 +11,14 @@ class Feeder(Dataset):
                  random_move=False, random_rot=False, window_size=-1, normalization=False, debug=False, use_mmap=False,
                  bone=False, vel=False):
         """
-        :param data_path:
-        :param label_path:
-        :param split: training set or test set
-        :param random_choose: If true, randomly choose a portion of the input sequence
-        :param random_shift: If true, randomly pad zeros at the begining or end of sequence
-        :param random_move:
-        :param random_rot: rotate skeleton around xyz axis
-        :param window_size: The length of the output sequence
-        :param normalization: If true, normalize input sequence
-        :param debug: If true, only use the first 100 samples
-        :param use_mmap: If true, use mmap mode to load data, which can save the running memory
-        :param bone: use bone modality or not
-        :param vel: use motion modality or not
-        :param only_label: only load label for ensemble score compute
+        :param data_path: Đường dẫn file .npy
+        :param label_path: Đường dẫn file .pkl
+        :param split: 'train' hoặc 'test'/'val'
+        :param p_interval: Khoảng tỉ lệ cắt ngẫu nhiên khi train (ví dụ: [0.5, 1])
+        :param window_size: Độ dài chuỗi thời gian đích (ví dụ: 64)
+        :param bone: Sử dụng dữ liệu Xương (True/False)
+        :param vel: Sử dụng dữ liệu Vận tốc (True/False)
         """
-
         self.debug = debug
         self.data_path = data_path
         self.label_path = label_path
@@ -45,20 +38,20 @@ class Feeder(Dataset):
             self.get_mean_map()
 
     def load_data(self):
-        # data: N C V T M
-        npz_data = np.load(self.data_path)
-        if self.split == 'train':
-            self.data = npz_data['x_train']
-            self.label = np.where(npz_data['y_train'] > 0)[1]
-            self.sample_name = ['train_' + str(i) for i in range(len(self.data))]
-        elif self.split == 'test':
-            self.data = npz_data['x_test']
-            self.label = np.where(npz_data['y_test'] > 0)[1]
-            self.sample_name = ['test_' + str(i) for i in range(len(self.data))]
+        # Đọc file label (.pkl)
+        try:
+            with open(self.label_path, 'rb') as f:
+                self.sample_name, self.label = pickle.load(f)
+        except:
+            # Hỗ trợ giải mã nếu file pickle được tạo từ python2
+            with open(self.label_path, 'rb') as f:
+                self.sample_name, self.label = pickle.load(f, encoding='latin1')
+
+        # Đọc file dữ liệu tọa độ (.npy)
+        if self.use_mmap:
+            self.data = np.load(self.data_path, mmap_mode='r')
         else:
-            raise NotImplementedError('data split only supports train/test')
-        N, T, _ = self.data.shape
-        self.data = self.data.reshape((N, T, 2, 25, 3)).transpose(0, 4, 1, 3, 2)
+            self.data = np.load(self.data_path)
 
     def get_mean_map(self):
         data = self.data
@@ -76,17 +69,70 @@ class Feeder(Dataset):
         data_numpy = self.data[index]
         label = self.label[index]
         data_numpy = np.array(data_numpy)
+        
+        # 1. SỬA LỖI UNPACK (Xử lý dữ liệu 3D thiếu chiều M của bộ data_cobot_clr_zoom)
+        if len(data_numpy.shape) == 3:
+            # Nếu data thô có dạng (T, V, C) với C=3 ở cuối, ta chuyển về (C, T, V)
+            if data_numpy.shape[2] == 3:
+                data_numpy = data_numpy.transpose(2, 0, 1)
+            # Chuyển từ (C, T, V) thành (C, T, V, 1) để tương thích cấu trúc mạng gốc
+            data_numpy = np.expand_dims(data_numpy, axis=-1)
+
+        # Tính toán số lượng frame thực tế có chứa dữ liệu (bỏ qua các frame rác trống)
         valid_frame_num = np.sum(data_numpy.sum(0).sum(-1).sum(-1) != 0)
-        # reshape Tx(MVC) to CTVM
-        data_numpy = tools.valid_crop_resize(data_numpy, valid_frame_num, self.p_interval, self.window_size)
+        
+        # Áp dụng Augmentation xoay khung xương nếu được bật
         if self.random_rot:
             data_numpy = tools.random_rot(data_numpy)
+            
+        # 2. CHIẾN LƯỢC BỎ RESIZE: Thay thế hoàn toàn valid_crop_resize cũ
+        if self.window_size != -1:
+            if valid_frame_num == 0:
+                # Nếu chuỗi trống hoàn toàn, khởi tạo chuỗi zero theo window_size cố định
+                data_numpy = np.zeros((data_numpy.shape[0], self.window_size, data_numpy.shape[2], data_numpy.shape[3]))
+            else:
+                # Cắt bỏ các frame trống ở đuôi dữ liệu thô, chỉ giữ lại các frame thực tế
+                data_numpy = data_numpy[:, :valid_frame_num, :, :]
+                
+                C, T, V, M = data_numpy.shape
+                
+                if T == self.window_size:
+                    pass
+                elif T < self.window_size:
+                    # KỸ THUẬT ZERO-PADDING: Chuỗi ngắn hơn window_size (64) -> Bù thêm frame 0 vào phía sau
+                    pad_length = self.window_size - T
+                    pad_tensor = np.zeros((C, pad_length, V, M), dtype=data_numpy.dtype)
+                    data_numpy = np.concatenate((data_numpy, pad_tensor), axis=1)
+                else:
+                    # KỸ THUẬT CROPPING: Chuỗi dài hơn window_size (64) -> Tiến hành cắt phân đoạn
+                    if self.split == 'train':
+                        # Nếu là tập Train: Chọn vị trí bắt đầu cắt ngẫu nhiên (Random Crop) để tăng cường dữ liệu
+                        p_interval = self.p_interval
+                        ratio = np.random.uniform(p_interval[0], p_interval[1])
+                        start_frame = int((T - self.window_size) * ratio)
+                        start_frame = max(0, min(start_frame, T - self.window_size))
+                        data_numpy = data_numpy[:, start_frame:start_frame + self.window_size, :, :]
+                    else:
+                        # Nếu là tập Test/Val: Cắt lấy phân đoạn chính giữa (Center Crop) để đảm bảo tính khách quan
+                        start_frame = (T - self.window_size) // 2
+                        data_numpy = data_numpy[:, start_frame:start_frame + self.window_size, :, :]
+
+        elif self.random_choose:
+            data_numpy = tools.random_choose(data_numpy, self.window_size)
+        elif self.random_shift:
+            data_numpy = tools.random_shift(data_numpy)
+        elif self.random_move:
+            data_numpy = tools.random_move(data_numpy)
+            
+        # Tính toán dòng dữ liệu Xương (Bone) nếu cấu hình yêu cầu
         if self.bone:
             from .bone_pairs import ntu_pairs
             bone_data_numpy = np.zeros_like(data_numpy)
             for v1, v2 in ntu_pairs:
                 bone_data_numpy[:, :, v1 - 1] = data_numpy[:, :, v1 - 1] - data_numpy[:, :, v2 - 1]
             data_numpy = bone_data_numpy
+            
+        # Tính toán dòng dữ liệu Chuyển động (Velocity) nếu cấu hình yêu cầu
         if self.vel:
             data_numpy[:, :-1] = data_numpy[:, 1:] - data_numpy[:, :-1]
             data_numpy[:, -1] = 0
